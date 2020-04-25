@@ -2,6 +2,7 @@ import cdk = require("@aws-cdk/core");
 import dynamodb = require("@aws-cdk/aws-dynamodb");
 import { ConnectStack } from "./connect-stack";
 import { BotStack } from "./bot-stack";
+import { LexStack } from "./lex-stack";
 
 export class FypStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -51,5 +52,7 @@ export class FypStack extends cdk.Stack {
     );
 
     new BotStack(this, "BotStack");
+
+    new LexStack(this, "LexStack", reminderRecord);
   }
 }

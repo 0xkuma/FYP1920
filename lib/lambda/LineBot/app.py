@@ -23,20 +23,19 @@ lex = boto3.client('lex-runtime')
 def lambda_handler(event, context):
     @handler.add(MessageEvent, message=TextMessage)
     def handle_message(event):
-        
+
         logger.info(event)
-        
+
         response = lex.post_text(
             botName='ReminderController',
             botAlias='ElderlyHelper',
             userId=event.source.user_id,
-            sessionAttributes={},
+            sessionAttributes={"app": "Line"},
             inputText=event.message.text
         )
-        
+
         logger.info(response)
 
-        
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=response["message"]))

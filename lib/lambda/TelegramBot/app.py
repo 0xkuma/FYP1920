@@ -13,7 +13,7 @@ def message_handler(msg, chat_id):
         botName='ReminderController',
         botAlias='ElderlyHelper',
         userId=str(chat_id),
-        sessionAttributes={},
+        sessionAttributes={"app": "Telegram"},
         inputText=msg
     )
     return response["message"]
