@@ -24,6 +24,7 @@ export class LexStack extends cdk.Construct {
           "cloudwatch:*",
           "logs:*",
           "dynamodb:*",
+          "sns:*",
         ],
       })
     );

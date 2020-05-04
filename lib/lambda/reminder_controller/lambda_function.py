@@ -58,9 +58,15 @@ def dispatch(intent_request):
         "reminderTime": reminderTime,
         "oneTimeCode": oneTimeCode,
         "userId": intent_request['userId'],
-        "app": intent_request['sessionAttributes']['app'] if intent_request['sessionAttributes']['app'] is not None else ""
+        "app": intent_request['sessionAttributes']['app']
     })
     session_attributes['currentState'] = chatsession
+    logger.debug('chatsession={}'.format(chatsession))
+    
+    if intent_name != 'LoginIntent':
+        if isexpired_time(chatsession):
+            msg = message("Please login!")
+            return close(session_attributes, "Failed", msg)
 
     if intent_name == 'CreateReminder':
         if intent_request['invocationSource'] == 'DialogCodeHook':
@@ -165,6 +171,7 @@ def dispatch(intent_request):
     if intent_name == 'LoginIntent':
         if intent_request['invocationSource'] == 'DialogCodeHook':
             if not oneTimeCode:
+                update_one_time_code(chatsession)
                 return delegate(session_attributes, slots)
 
             if confirmation_status == 'None':
@@ -175,8 +182,8 @@ def dispatch(intent_request):
                 msg = message(login_handle(session_attributes['currentState']))
                 return close(session_attributes, "Fulfilled", msg)
             if confirmation_status == 'Denied':
-                msg = message("okay, the search is cancel.")
-                return close(session_attributes, "Failed", msg)
+                msg = message("Please enter the code again!")
+                return elicit_slot(session_attributes, intent_name, slots, "oneTimeCode", msg)
 
     raise Exception('Intent with name ' + intent_name + ' not supported')
 
@@ -185,13 +192,6 @@ def lambda_handler(event, context):
     os.environ['TZ'] = 'Asia/Hong_Kong'
     time.tzset()
     logger.debug('event.bot.name={}'.format(event['bot']['name']))
-    session_attributes = {'login': False}
     logger.debug('List all={}'.format(event))
 
     return dispatch(event)
-
-    # if session_attributes['login'] or event['currentIntent']['name'] == 'LoginIntent':
-    #     return dispatch(event)
-    # else:
-    #     msg = message("Please login first.")
-    #     return close(session_attributes, "Fulfilled", msg)
